@@ -27,12 +27,36 @@ const App = () => {
     setUserName(name);
   };
   
-  // Function to handle topic selection from ChatBox - REMOVED AUTOMATIC NAVIGATION
-  // The ChatBox will handle all interactions internally now
+  // Function to handle topic selection from ChatBox - ENABLE NAVIGATION TO COMPONENTS
   const handleTopicSelected = (topic) => {
-    // This function can be used for analytics or other purposes
-    // but won't trigger navigation anymore
-    console.log('Topic selected:', topic);
+    switch(topic) {
+      case 'SII Programme':
+        setActiveComponent('sii');
+        break;
+      case 'Registration & Choice Filling':
+        setActiveComponent('registration');
+        break;
+      case 'Costs & Fees':
+        setActiveComponent('costs');
+        break;
+      case 'Courses':
+        setActiveComponent('courses');
+        break;
+      case 'Globally Accepted Degrees':
+        setActiveComponent('degrees');
+        break;
+      case 'English Language Skills':
+        setActiveComponent('english');
+        break;
+      case 'Visa Regulations':
+        setActiveComponent('visa');
+        break;
+      case 'Admissions':
+        setActiveComponent('admissions');
+        break;
+      default:
+        setActiveComponent('chatbox');
+    }
   };
   
   // Render the active component

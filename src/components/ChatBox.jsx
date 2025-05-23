@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import Feedback from './Feedback'; // Import the Feedback component
 
 const ChatBox = ({ onNameCollected, onTopicSelected }) => {
   const [userName, setUserName] = useState('');
@@ -16,6 +17,15 @@ const ChatBox = ({ onNameCollected, onTopicSelected }) => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Handle feedback - this function will be called by the Feedback component
+  const handleFeedback = (isPositive, messageIndex, helplineMessage) => {
+    if (!isPositive && helplineMessage) {
+      // Add the helpline message to the chat
+      setMessages((prev) => [...prev, helplineMessage]);
+    }
+    // You can add more logic here for positive feedback if needed
+  };
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -56,11 +66,21 @@ const ChatBox = ({ onNameCollected, onTopicSelected }) => {
         setMessages((prev) => [...prev, welcomeMessage, optionsMessage]);
       }, 600);
     } else {
-      // Regular response for subsequent messages
+      // General response for any typed message after name collection
       setTimeout(() => {
         const botReply = { 
           sender: 'bot', 
-          text: `Thanks for your interest, ${userName}! I'd be happy to tell you more about the Study in India program. What specific information are you looking for?`
+          text: `Thanks for your message, ${userName}! For specific information, please use the topic buttons below. I'm here to help you with all aspects of studying in India! 😊`,
+          quickReplies: [
+            { text: 'SII Programme', icon: '🏫' },
+            { text: 'Registration & Choice Filling', icon: '📝' },
+            { text: 'Costs & Fees', icon: '💰' },
+            { text: 'Courses', icon: '📚' },
+            { text: 'Globally Accepted Degrees', icon: '🌎' },
+            { text: 'English Language Skills', icon: '🗣️' },
+            { text: 'Visa Regulations', icon: '🛂' },
+            { text: 'Admissions', icon: '📅' }
+          ]
         };
         setMessages((prev) => [...prev, botReply]);
       }, 600);
@@ -78,143 +98,66 @@ const ChatBox = ({ onNameCollected, onTopicSelected }) => {
     const userMessage = { sender: 'user', text: replyText };
     setMessages((prev) => [...prev, userMessage]);
     
-    // Don't call onTopicSelected here - handle everything within the chat
+    // Check if it's a main topic selection - navigate to appropriate component
+    const mainTopics = [
+      'SII Programme',
+      'Registration & Choice Filling', 
+      'Costs & Fees',
+      'Courses',
+      'Globally Accepted Degrees',
+      'English Language Skills',
+      'Visa Regulations',
+      'Admissions'
+    ];
 
-    // Simulate bot response based on quick reply
-    setTimeout(() => {
-      let botResponse;
-      
-      switch(replyText) {
-        case 'SII Programme':
-          botResponse = {
-            sender: 'bot',
-            text: `${userName}, the Study in India (SII) programme is a flagship project by the Government of India that aims to attract international students to higher education institutions in India. What would you like to know about it?`,
-            quickReplies: [
-              { text: 'About SII', icon: 'ℹ️' },
-              { text: 'Participating Institutions', icon: '🏛️' },
-              { text: 'Benefits', icon: '✅' },
-              { text: 'Eligibility', icon: '🔍' },
-              { text: 'Back to Main Menu', icon: '🔙' }
-            ]
-          };
-          break;
-        case 'Registration & Choice Filling':
-          botResponse = {
-            sender: 'bot',
-            text: `${userName}, registration for Study in India involves creating an account and filling your institution choices. What specific information do you need?`,
-            quickReplies: [
-              { text: 'Registration Process', icon: '📋' },
-              { text: 'Choice Filling Guide', icon: '✏️' },
-              { text: 'Important Dates', icon: '📅' },
-              { text: 'Required Documents', icon: '📄' },
-              { text: 'Back to Main Menu', icon: '🔙' }
-            ]
-          };
-          break;
-        case 'Costs & Fees':
-          botResponse = {
-            sender: 'bot',
-            text: `Let me help you understand the costs associated with studying in India, ${userName}.`,
-            quickReplies: [
-              { text: 'Tuition Fees', icon: '💵' },
-              { text: 'Living Expenses', icon: '🏠' },
-              { text: 'Fee Waivers', icon: '🎁' },
-              { text: 'Scholarships', icon: '🏆' },
-              { text: 'Back to Main Menu', icon: '🔙' }
-            ]
-          };
-          break;
-        case 'Courses':
-          botResponse = {
-            sender: 'bot', 
-            text: `${userName}, India offers a wide range of courses across various disciplines. What field interests you?`,
-            quickReplies: [
-              { text: 'Engineering', icon: '⚙️' },
-              { text: 'Medicine', icon: '⚕️' },
-              { text: 'Management', icon: '📊' },
-              { text: 'Arts & Humanities', icon: '🎭' },
-              { text: 'Science', icon: '🔬' },
-              { text: 'Back to Main Menu', icon: '🔙' }
-            ]
-          };
-          break;
-        case 'Globally Accepted Degrees':
-          botResponse = {
-            sender: 'bot',
-            text: `${userName}, Indian degrees are recognized worldwide due to the country's strong educational standards. What would you like to know about their global acceptance?`,
-            quickReplies: [
-              { text: 'Recognition Info', icon: '🌐' },
-              { text: 'University Rankings', icon: '📈' },
-              { text: 'Success Stories', icon: '🌟' },
-              { text: 'Accreditation', icon: '✅' },
-              { text: 'Back to Main Menu', icon: '🔙' }
-            ]
-          };
-          break;
-        case 'English Language Skills':
-          botResponse = {
-            sender: 'bot',
-            text: `${userName}, most Indian universities offer courses in English. Here's information about language requirements:`,
-            quickReplies: [
-              { text: 'Language Requirements', icon: '📝' },
-              { text: 'English Tests', icon: '✍️' },
-              { text: 'Language Support', icon: '🗣️' },
-              { text: 'Exemptions', icon: '🔓' },
-              { text: 'Back to Main Menu', icon: '🔙' }
-            ]
-          };
-          break;
-        case 'Visa Regulations':
-          botResponse = {
-            sender: 'bot',
-            text: `${userName}, to study in India, you'll need a Student Visa. What specific visa information do you need?`,
-            quickReplies: [
-              { text: 'Visa Application', icon: '📄' },
-              { text: 'Required Documents', icon: '📋' },
-              { text: 'Processing Time', icon: '⏱️' },
-              { text: 'Visa Extension', icon: '🔄' },
-              { text: 'Back to Main Menu', icon: '🔙' }
-            ]
-          };
-          break;
-        case 'Admissions':
-          botResponse = {
-            sender: 'bot',
-            text: `${userName}, the admission process for Indian universities involves several steps. What would you like to know?`,
-            quickReplies: [
-              { text: 'Application Process', icon: '📝' },
-              { text: 'Deadlines', icon: '📅' },
-              { text: 'Entry Requirements', icon: '🚪' },
-              { text: 'Selection Criteria', icon: '🎯' },
-              { text: 'Back to Main Menu', icon: '🔙' }
-            ]
-          };
-          break;
-        case 'Back to Main Menu':
-          botResponse = {
-            sender: 'bot',
-            text: `How else can I help you today, ${userName}? 👇`,
-            quickReplies: [
-              { text: 'SII Programme', icon: '🏫' },
-              { text: 'Registration & Choice Filling', icon: '📝' },
-              { text: 'Costs & Fees', icon: '💰' },
-              { text: 'Courses', icon: '📚' },
-              { text: 'Globally Accepted Degrees', icon: '🌎' },
-              { text: 'English Language Skills', icon: '🗣️' },
-              { text: 'Visa Regulations', icon: '🛂' },
-              { text: 'Admissions', icon: '📅' }
-            ]
-          };
-          break;
-        default:
-          botResponse = {
-            sender: 'bot',
-            text: `Thanks for your interest, ${userName}! I'd be happy to provide more information about that. Could you please elaborate on what you're looking for?`
-          };
+    if (mainTopics.includes(replyText)) {
+      // Navigate to the specific component
+      if (onTopicSelected) {
+        onTopicSelected(replyText);
+        return;
       }
-      
+    }
+
+    // Handle "Back to Main Menu" if it comes from any component
+    if (replyText === 'Back to Main Menu') {
+      setTimeout(() => {
+        const botResponse = {
+          sender: 'bot',
+          text: `How else can I help you today, ${userName}? 👇`,
+          quickReplies: [
+            { text: 'SII Programme', icon: '🏫' },
+            { text: 'Registration & Choice Filling', icon: '📝' },
+            { text: 'Costs & Fees', icon: '💰' },
+            { text: 'Courses', icon: '📚' },
+            { text: 'Globally Accepted Degrees', icon: '🌎' },
+            { text: 'English Language Skills', icon: '🗣️' },
+            { text: 'Visa Regulations', icon: '🛂' },
+            { text: 'Admissions', icon: '📅' }
+          ]
+        };
+        setMessages((prev) => [...prev, botResponse]);
+      }, 500);
+      return;
+    }
+
+    // For any other quick reply that doesn't match main topics
+    setTimeout(() => {
+      const botResponse = {
+        sender: 'bot',
+        text: `Thanks for your interest, ${userName}! Please select one of the main topics below for detailed information:`,
+        quickReplies: [
+          { text: 'SII Programme', icon: '🏫' },
+          { text: 'Registration & Choice Filling', icon: '📝' },
+          { text: 'Costs & Fees', icon: '💰' },
+          { text: 'Courses', icon: '📚' },
+          { text: 'Globally Accepted Degrees', icon: '🌎' },
+          { text: 'English Language Skills', icon: '🗣️' },
+          { text: 'Visa Regulations', icon: '🛂' },
+          { text: 'Admissions', icon: '📅' }
+        ]
+      };
       setMessages((prev) => [...prev, botResponse]);
-    }, 800);
+    }, 500);
   };
 
   return (
@@ -230,7 +173,7 @@ const ChatBox = ({ onNameCollected, onTopicSelected }) => {
           </div>
           <div>
             <h1 className="font-bold text-lg">StudyIndia<span className="text-[#ff8c00]">Bot</span></h1>
-            <p className="text-xs text-white/80">Usual reply time: 1 to 2 Minutes</p>
+            <p className="text-xs text-white/80">Your Study in India Assistant</p>
           </div>
         </div>
         <div className="text-2xl">⋮</div>
@@ -252,7 +195,7 @@ const ChatBox = ({ onNameCollected, onTopicSelected }) => {
                   : 'bg-white text-gray-800 shadow-sm'
               }`}
             >
-              {msg.text}
+              <div className="whitespace-pre-line">{msg.text}</div>
               
               {/* Quick Reply buttons */}
               {msg.quickReplies && (
@@ -267,6 +210,16 @@ const ChatBox = ({ onNameCollected, onTopicSelected }) => {
                     </button>
                   ))}
                 </div>
+              )}
+
+              {/* Feedback Component - only show for bot messages and not helpline messages */}
+              {msg.sender === 'bot' && !msg.isHelplineMessage && (
+                <Feedback 
+                  onFeedback={handleFeedback}
+                  messageIndex={index}
+                  userName={userName}
+                  context="general"
+                />
               )}
             </div>
           </div>
